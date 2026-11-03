@@ -9,8 +9,8 @@
   see the visitor total. Never put your "secret" key here.
 */
 window.DR_CONFIG = {
-  supabaseUrl: "https://YOUR-PROJECT-ID.supabase.co",
-  supabaseKey: "sb_publishable_YOUR-KEY",
+  supabaseUrl: "https://erexlhzmgbtmbsaygjvi.supabase.co",
+  supabaseKey: "sb_publishable_ElRqQZUZOoHgjET8o0t1AA_GRFhirw8",
 
   // Show the visitor counter in the website footer. Set to false to hide it
   // from visitors; you'll still see the numbers in your dashboard.
