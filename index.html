@@ -1683,7 +1683,7 @@ footer{border-top:1px solid var(--line);margin-top:24px}
     <p class="lede">How Development Recruit collects, uses and protects the information you share with us through this website. Last updated October 2026.</p>
     <div class="pv-body">
       <h2>Who we are</h2>
-      <p>Development Recruit is a recruitment firm serving NGOs, INGOs, U.S. government implementing partners, national NGOs and U.S. community nonprofits. We are responsible for the personal information described here. Questions or requests go to <b>sohailakhtar135@hotmail.com</b>.</p>
+      <p>Development Recruit is a recruitment firm serving NGOs, INGOs, U.S. government implementing partners, national NGOs and U.S. community nonprofits. We are responsible for the personal information described here. Questions or requests go to <b>[email]</b>.</p>
 
       <h2>What we collect</h2>
       <ul>
@@ -1718,7 +1718,7 @@ footer{border-top:1px solid var(--line);margin-top:24px}
       <p>Your information is stored in a private database and private file storage with encrypted connections. Only our recruitment team can access it, and website visitors can never read anyone else’s data or files.</p>
 
       <h2>Your rights</h2>
-      <p>You can ask us to show you the information we hold about you, correct it, delete it, or stop using it, and you can withdraw your consent at any time. Email <b>sohailakhtar135@hotmail.com</b> and we’ll respond within 30 days. If you’re not satisfied with our response, you can complain to the data protection authority where you live.</p>
+      <p>You can ask us to show you the information we hold about you, correct it, delete it, or stop using it, and you can withdraw your consent at any time. Email <b>[email]</b> and we’ll respond within 30 days. If you’re not satisfied with our response, you can complain to the data protection authority where you live.</p>
 
       <h2>Children</h2>
       <p>Our services are for adult professionals. We don’t knowingly collect information from anyone under 18.</p>
@@ -1982,10 +1982,6 @@ footer{border-top:1px solid var(--line);margin-top:24px}
   function resetFile(inputId, outId){ const i = document.getElementById(inputId), o = document.getElementById(outId); i.value = ''; o.textContent = o.dataset.empty || o.textContent; o.style.color = ''; }
   document.querySelectorAll('.fname').forEach(o => { o.dataset.empty = o.textContent; });
   const PREVIEW_NOTE = 'Site preview: this form is not connected to the database yet, so nothing was sent.';
-  /* no-database mode: with contactEmail set in config.js and no database, forms open the visitor's email app instead */
-  const MAIL_TO = (!sb && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(CFG.contactEmail || '').trim())) ? String(CFG.contactEmail).trim() : '';
-  function mailOut(subject, lines){ location.href = 'mailto:' + MAIL_TO + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(lines.join('\n')); }
-  const kv = rows => rows.filter(([, v]) => v).map(([k, v]) => k.charAt(0).toUpperCase() + k.slice(1) + ': ' + v);
 
   /* ---------- job alerts ---------- */
   (() => {
@@ -2005,7 +2001,6 @@ footer{border-top:1px solid var(--line);margin-top:24px}
       if(mode === 'unsub'){
         const em = document.getElementById('alUEmail'), v = em.value.trim();
         if(!okEmail(v)){ em.classList.add('bad'); em.focus(); say('Please enter a valid email address.', 'err'); return; }
-        if(MAIL_TO){ mailOut('Unsubscribe from job alerts', ['Please remove ' + v + ' from your job alerts.']); say('Your email app should open. Press Send and we’ll remove you. If nothing opens, email ' + MAIL_TO + '.', 'ok'); return; }
         if(!sb){ say(PREVIEW_NOTE, 'warn'); return; }
         const btn = document.getElementById('alUBtn'); busy(btn, true, 'Unsubscribing…');
         try { const { error } = await sb.rpc('unsubscribe_job_alerts', { p_email: v }); if(error) throw error; em.value = ''; say('✓ Done. You won’t receive any more job alerts from us.', 'ok'); }
@@ -2023,7 +2018,6 @@ footer{border-top:1px solid var(--line);margin-top:24px}
       if(bad){ say(!areas.length ? 'Choose at least one area.' : !okEmail(v) ? 'Please enter a valid email address.' : 'Please tick the box to agree to job alert emails.', 'err'); return; }
       const region = document.getElementById('alRegion').value;
       const summary = areas.length > 2 ? areas.slice(0, 2).join(', ') + ' and ' + (areas.length - 2) + ' more' : areas.join(' and ');
-      if(MAIL_TO){ mailOut('Job alerts sign-up', ['Please send me job alerts.', '', 'Email: ' + v, 'Areas: ' + areas.join(', '), 'Region: ' + (region || 'Any'), '', 'I agree to receive job alerts by email and can unsubscribe at any time.']); say('Your email app should open with your sign-up. Press Send to finish. If nothing opens, email ' + MAIL_TO + '.', 'ok'); return; }
       if(!sb){ say('Preview: you’d get alerts for ' + summary + '. ' + PREVIEW_NOTE, 'warn'); return; }
       const btn = document.getElementById('alBtn'); busy(btn, true, 'Signing up…');
       try {
@@ -2206,7 +2200,6 @@ footer{border-top:1px solid var(--line);margin-top:24px}
   window.DRJobs = { show(h){ document.getElementById('jvList').hidden = h !== 'jobs'; document.getElementById('jvDetail').hidden = h === 'jobs'; renderJobs(); } };
   const roleSel = document.getElementById('cvRole');
   async function loadRoles(){
-    if(!sb && MAIL_TO){ JOBS.list = []; JOBS.ready = true; renderJobs(); return; }
     if(!sb){ JOBS.list = SAMPLE_JOBS; JOBS.sample = true; JOBS.ready = true; renderJobs(); return; }
     try {
       let res = await sb.from('roles').select('id,title,location,sector,summary,employment_type,deadline,details,apply_url,created_at').eq('is_public', true).eq('status', 'open').order('created_at', { ascending:false });
@@ -2253,18 +2246,10 @@ footer{border-top:1px solid var(--line);margin-top:24px}
     const file = document.getElementById('cvFile').files[0];
     if(f.website.value){ done(fields, sent, 'CV received', [], 'Thank you.', 'Submit another CV'); return; }
     if(!validate(f)){ showErr('cvErr', 'Please complete the highlighted fields.'); return; }
-    const prob = fileProblem(file, !MAIL_TO); if(prob){ showErr('cvErr', prob); return; }
+    const prob = fileProblem(file, true); if(prob){ showErr('cvErr', prob); return; }
     const roleName = roleSel.value ? roleSel.options[roleSel.selectedIndex].text : 'General talent network';
-    const rows = [['name',f.name.value],['email',f.email.value],['expertise',f.area.value],['applying for',roleName],['cv',file ? file.name : 'attach to the email']];
+    const rows = [['name',f.name.value],['email',f.email.value],['expertise',f.area.value],['applying for',roleName],['cv',file.name]];
     if(pool === 'consultant') rows.splice(3, 0, ['joining','Consultant roster'], ['day rate',f.rate.value], ['availability',f.avail.value], ['assignments',f.mode.value]);
-    if(MAIL_TO){
-      mailOut((pool === 'consultant' ? 'Consultant roster: ' : 'CV: ') + f.name.value + (f.area.value ? ' – ' + f.area.value : ''),
-        ['Hello Development Recruit,', '', (pool === 'consultant' ? 'I would like to join your consultant roster.' : 'I would like to join your talent network.'), '']
-          .concat(kv(rows.filter(r => r[0] !== 'cv').concat([['based in', f.location.value], ['years of experience', f.years.value], ['languages', f.langs.value]])))
-          .concat(['', 'I agree that Development Recruit may store my CV and share it with employers only with my permission.', '', '[Please attach your CV to this email before sending.]']));
-      done(fields, sent, 'Almost done: send the email', rows, 'Your email app should open with your details filled in. Attach your CV and press Send. If nothing opens, email your CV to ' + MAIL_TO + '.', 'Edit details');
-      return;
-    }
     if(!sb){ done(fields, sent, 'CV ready to submit', rows, PREVIEW_NOTE, 'Edit details'); return; }
     const btn = f.querySelector('button[type=submit]'); busy(btn, true, 'Sending…');
     try {
@@ -2305,13 +2290,6 @@ footer{border-top:1px solid var(--line);margin-top:24px}
       ['job description',jd?jd.name:''],['contact',f.name.value+' · '+f.email.value]];
     if(mode==='consult') rows.splice(5,0,['preferred time',f.when.value]);
     const title = mode==='consult' ? 'Consultation request' : 'Talent request';
-    if(MAIL_TO){
-      mailOut(title + ': ' + f.role.value + ' – ' + f.org.value,
-        ['Hello Development Recruit,', ''].concat(kv(rows.filter(r => r[0] !== 'job description' && r[0] !== 'contact').concat([['contact', f.name.value], ['email', f.email.value], ['phone', f.phone.value]])))
-          .concat(f.notes.value.trim() ? ['', 'Notes:', f.notes.value.trim()] : []).concat(jd ? ['', '[Please attach the job description (' + jd.name + ') to this email before sending.]'] : []));
-      done(fields, sent, 'Almost done: send the email', rows, 'Your email app should open with your request filled in.' + (jd ? ' Attach your job description and press Send.' : ' Press Send to reach us.') + ' If nothing opens, email us at ' + MAIL_TO + '.', 'Edit request');
-      return;
-    }
     if(!sb){ done(fields, sent, title + ' ready', rows, PREVIEW_NOTE, 'Edit request'); return; }
     const btn = document.getElementById('talentSubmit'); busy(btn, true, 'Sending…');
     try {
@@ -2351,7 +2329,7 @@ footer{border-top:1px solid var(--line);margin-top:24px}
   }
   (function(){
     const box = document.getElementById('visits');
-    if(CFG.showVisitorCounter === false || MAIL_TO) box.hidden = true;
+    if(CFG.showVisitorCounter === false) box.hidden = true;
     if(!sb) return;
     let vid = null;
     try { vid = localStorage.getItem('dr.vid'); } catch(_) {}
@@ -2628,9 +2606,6 @@ async function send(){
   const m = t => { $('#sendMsg').innerHTML = t; };
   if(!S.name || !/^\S+@\S+\.\S+$/.test(S.email || '')){ m('<div class="msg err">Add your name and a valid email in Contact details first.</div>'); return; }
   if(!$('#s-consent').checked){ m('<div class="msg err">Please tick the consent box to send your resume.</div>'); return; }
-  const mailTo = (!sb && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(CFG.contactEmail || '').trim())) ? String(CFG.contactEmail).trim() : '';
-  if(mailTo){ const subj = encodeURIComponent('Resume: ' + S.name + (S.headline ? ' – ' + S.headline : '')); const body = encodeURIComponent('Hello Development Recruit,\n\nI would like to join your talent network. My resume is attached.\n\n' + S.name + '\n' + S.email + '\n\nI agree that Development Recruit may store my resume and share it with employers only with my permission.\n\n[Please attach your resume before sending.]');
-    m('<div class="msg ok">Almost done: download your resume as a PDF or Word file (buttons above), then <a href="mailto:' + mailTo + '?subject=' + subj + '&amp;body=' + body + '">email it to us</a> at ' + mailTo + '.</div>'); return; }
   if(!sb){ m('<div class="msg">Site preview: sending isn’t connected yet. On the live website this sends your resume to our talent network.</div>'); return; }
   const btn = document.querySelector('[data-act="send"]'); btn.disabled = true; btn.textContent = 'Sending…';
   try {
